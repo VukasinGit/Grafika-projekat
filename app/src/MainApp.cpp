@@ -3,6 +3,12 @@
 //
 
 #include "MainApp.hpp"
-void MainApp::app_setup() {
 
+#include <MainController.hpp>
+#include <engine/core/Controller.hpp>
+
+class MainController;
+void MainApp::app_setup() {
+    auto main_controller = register_controller<MainController>();
+    main_controller->after(engine::core::Controller::get<engine::core::EngineControllersEnd>());
 }

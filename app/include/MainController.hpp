@@ -20,7 +20,8 @@ private:
     void draw() override;
     void end_draw() override;
     void terminate() override;
-};
 
+    void draw_skybox();
+};
 
 #endif //MAINCONTROLLER_HPP
