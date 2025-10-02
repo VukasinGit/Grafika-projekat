@@ -7,7 +7,7 @@
 #include <engine/core/Controller.hpp>
 
 
-class MainController : engine::core::Controller {
+class MainController : public engine::core::Controller {
 public:
     std::string_view name() const override;
 

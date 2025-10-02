@@ -2,15 +2,18 @@
 // Created by vukasin on 2.10.25..
 //
 
-#include "../include/MainController.hpp"
+#include "MainController.hpp"
 std::string_view MainController::name() const {
     return Controller::name();
 }
+
 void MainController::initialize() {
 }
+
 bool MainController::loop() {
     return true;
 }
+
 void MainController::poll_events() {
 }
 void MainController::update() {
