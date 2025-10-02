@@ -22,6 +22,7 @@ private:
     void terminate() override;
 
     void draw_skybox();
+    void update_camera();
 };
 
 #endif //MAINCONTROLLER_HPP
