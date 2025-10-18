@@ -34,7 +34,7 @@ void MainController::begin_draw() {
 
 void MainController::draw() {
     draw_skybox();
-    //draw_cube();
+    draw_cube();
 }
 
 void MainController::end_draw() {
@@ -46,13 +46,13 @@ void MainController::terminate() {
 
 void MainController::draw_cube() {
     auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
-    auto cube = engine::core::Controller::get<engine::resources::ResourcesController>()->model("cube");
+    auto cube = engine::core::Controller::get<engine::resources::ResourcesController>()->model("planet");
     auto shader = engine::core::Controller::get<engine::resources::ResourcesController>()->shader("basic");
     shader->use();
     shader->set_mat4("projection", graphics->projection_matrix());
     shader->set_mat4("view", graphics->camera()
                                      ->view_matrix());
-    shader->set_mat4("model", scale(glm::mat4(1.0f), glm::vec3(1.0f)));
+    shader->set_mat4("model", scale(glm::mat4(1.0f), glm::vec3(0.01f)));
     cube->draw(shader);
 }
 

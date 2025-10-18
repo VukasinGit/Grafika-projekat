@@ -1,8 +1,8 @@
 {
   "resources": {
     "models": {
-      "cube": {
-        "path": "cube/cube.obj"
+      "planet": {
+        "path": "planet/planet.obj"
       }
     }
   },
