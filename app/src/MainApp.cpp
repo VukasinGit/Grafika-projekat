@@ -4,11 +4,15 @@
 
 #include "MainApp.hpp"
 
+#include <GUIController.hpp>
 #include <MainController.hpp>
 #include <engine/core/Controller.hpp>
 
-class MainController;
-void MainApp::app_setup() {
-    auto main_controller = register_controller<MainController>();
-    main_controller->after(engine::core::Controller::get<engine::core::EngineControllersEnd>());
+namespace app {
+    void MainApp::app_setup() {
+        const auto main_controller = register_controller<MainController>();
+        const auto gui_controller = register_controller<GUIController>();
+        main_controller->after(engine::core::Controller::get<engine::core::EngineControllersEnd>());
+        gui_controller->after(main_controller);
+    }
 }

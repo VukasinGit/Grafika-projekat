@@ -6,24 +6,27 @@
 #define MAINCONTROLLER_HPP
 #include <engine/core/Controller.hpp>
 
+namespace app {
+    class MainController : public engine::core::Controller {
+    public:
+        std::string_view name() const override;
 
-class MainController : public engine::core::Controller {
-public:
-    std::string_view name() const override;
+    private:
+        void initialize() override;
+        bool loop() override;
+        void poll_events() override;
+        void update() override;
+        void begin_draw() override;
+        void draw() override;
+        void end_draw() override;
+        void terminate() override;
 
-private:
-    void initialize() override;
-    bool loop() override;
-    void poll_events() override;
-    void update() override;
-    void begin_draw() override;
-    void draw() override;
-    void end_draw() override;
-    void terminate() override;
+        void draw_planet();
+        void draw_tower();
+        void draw_skybox();
 
-    void draw_cube();
-    void draw_skybox();
-    void update_camera();
-};
+        void update_camera();
+    };
+}
 
 #endif //MAINCONTROLLER_HPP

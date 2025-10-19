@@ -6,8 +6,10 @@
 #define MAINAPP_HPP
 #include <engine/core/App.hpp>
 
-class MainApp final : public engine::core::App {
-    void app_setup() override;
-};
+namespace app {
+    class MainApp final : public engine::core::App {
+        void app_setup() override;
+    };
+}
 
 #endif //MAINAPP_HPP
