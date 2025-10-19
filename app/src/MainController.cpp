@@ -52,7 +52,11 @@ void MainController::draw_cube() {
     shader->set_mat4("projection", graphics->projection_matrix());
     shader->set_mat4("view", graphics->camera()
                                      ->view_matrix());
-    shader->set_mat4("model", scale(glm::mat4(1.0f), glm::vec3(0.01f)));
+
+    auto model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(0.0f, 0.0f, -40.0f));
+
+    shader->set_mat4("model", scale(model, glm::vec3(0.1f)));
     cube->draw(shader);
 }
 
@@ -66,21 +70,22 @@ void MainController::update_camera() {
     auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
     auto camera = engine::core::Controller::get<engine::graphics::GraphicsController>()->camera();
     float dt = platform->dt();
+    float speed = 5.0f;
     if (platform->key(engine::platform::KEY_W)
                 .state() == engine::platform::Key::State::Pressed) {
-        camera->move_camera(engine::graphics::Camera::Movement::FORWARD, dt);
+        camera->move_camera(engine::graphics::Camera::Movement::FORWARD, speed*dt);
     }
     if (platform->key(engine::platform::KEY_S)
                 .state() == engine::platform::Key::State::Pressed) {
-        camera->move_camera(engine::graphics::Camera::Movement::BACKWARD, dt);
+        camera->move_camera(engine::graphics::Camera::Movement::BACKWARD, speed*dt);
     }
     if (platform->key(engine::platform::KEY_A)
                 .state() == engine::platform::Key::State::Pressed) {
-        camera->move_camera(engine::graphics::Camera::Movement::LEFT, dt);
+        camera->move_camera(engine::graphics::Camera::Movement::LEFT, speed*dt);
     }
     if (platform->key(engine::platform::KEY_D)
                 .state() == engine::platform::Key::State::Pressed) {
-        camera->move_camera(engine::graphics::Camera::Movement::RIGHT, dt);
+        camera->move_camera(engine::graphics::Camera::Movement::RIGHT, speed*dt);
     }
     auto mouse = platform->mouse();
     camera->rotate_camera(mouse.dx, mouse.dy);
