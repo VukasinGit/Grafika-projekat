@@ -42,7 +42,7 @@
 
 ## Textures
 
-[link1]  
+https://www.vecteezy.com/vector-art/4249098-abstract-background-black-and-white-chessboard-pattern-optical-illusion-texture-for-your-design
 [link2]
 
 {OTHER-RESOURCES}
