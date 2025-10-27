@@ -5,6 +5,7 @@
 #ifndef MAINCONTROLLER_HPP
 #define MAINCONTROLLER_HPP
 #include <engine/core/Controller.hpp>
+#include <engine/platform/PlatformEventObserver.hpp>
 
 namespace app {
     class MainController : public engine::core::Controller {
@@ -22,7 +23,8 @@ namespace app {
         void terminate() override;
 
         void draw_planet();
-        void draw_tower();
+        void draw_chessboard();
+        void draw_knight();
         void draw_skybox();
 
         void update_camera();

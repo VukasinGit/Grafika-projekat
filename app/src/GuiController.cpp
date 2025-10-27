@@ -8,6 +8,8 @@
 #include <imgui.h>
 
 namespace app {
+    float g_camera_speed = 5.0f;
+
     void GUIController::initialize() {
         set_enable(false);
     }
@@ -31,6 +33,11 @@ namespace app {
         ImGui::Text("Position: (%f %f %f)", c.Position.x, c.Position.y, c.Position.z);
         ImGui::Text("Yaw, Pitch: (%f %f %f)", c.Yaw, c.Pitch);
         ImGui::Text("Camera front: (%f %f %f)", c.Front.x, c.Front.y, c.Front.z);
+
+        ImGui::DragFloat("Camera speed: (%f)", &g_camera_speed, 1.0f, 100.0f, 100.0f);
+
+
+
         ImGui::End();
 
         graphics->end_gui();

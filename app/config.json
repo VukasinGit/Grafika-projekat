@@ -3,6 +3,12 @@
     "models": {
       "planet": {
         "path": "planet/planet.obj"
+      },
+      "chessboard": {
+        "path": "chessboard/Board.obj"
+      },
+      "knight": {
+        "path": "chessboard/Knight.WhiteL.obj"
       }
     }
   },

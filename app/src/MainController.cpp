@@ -4,18 +4,37 @@
 
 #include "MainController.hpp"
 
+#include <GUIController.hpp>
 #include <engine/graphics/GraphicsController.hpp>
 #include <engine/graphics/OpenGL.hpp>
 #include <engine/platform/PlatformController.hpp>
 #include <engine/resources/ResourcesController.hpp>
+#include <spdlog/spdlog.h>
 
 namespace app {
 
-    std::string_view MainController::name() const {
-        return Controller::name();
+    class MainPlatformEventObserver : public engine::platform::PlatformEventObserver {
+        public:
+        void on_mouse_move(engine::platform::MousePosition position) override;
+    };
+
+    void MainPlatformEventObserver::on_mouse_move(engine::platform::MousePosition position) {
+        auto gui_controller = engine::core::Controller::get<GUIController>();
+        if (!gui_controller->is_enabled()) {
+            auto camera = engine::core::Controller::get<engine::graphics::GraphicsController>()->camera();
+            camera->rotate_camera(position.dx, position.dy);
+        }
     }
 
     void MainController::initialize() {
+        auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
+        platform->register_platform_event_observer(std::make_unique<MainPlatformEventObserver>());
+        engine::graphics::OpenGL::enable_depth_testing();
+    }
+
+
+    std::string_view MainController::name() const {
+        return Controller::name();
     }
 
     bool MainController::loop() {
@@ -39,9 +58,10 @@ namespace app {
     }
 
     void MainController::draw() {
+        draw_chessboard();
+        draw_knight();
+        //draw_planet();
         draw_skybox();
-        draw_planet();
-        //draw_tower();
     }
 
     void MainController::end_draw() {
@@ -54,11 +74,11 @@ namespace app {
     void MainController::draw_planet() {
         auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
         auto planet = engine::core::Controller::get<engine::resources::ResourcesController>()->model("planet");
-        auto shader = engine::core::Controller::get<engine::resources::ResourcesController>()->shader("basic");
+        auto shader = engine::core::Controller::get<engine::resources::ResourcesController>()->shader("chessboard");
         shader->use();
+
         shader->set_mat4("projection", graphics->projection_matrix());
-        shader->set_mat4("view", graphics->camera()
-                                         ->view_matrix());
+        shader->set_mat4("view", graphics->camera()->view_matrix());
 
         auto model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, -40.0f));
@@ -67,19 +87,39 @@ namespace app {
         planet->draw(shader);
     }
 
-    void MainController::draw_tower() {
-        auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
-        auto tower = engine::core::Controller::get<engine::resources::ResourcesController>()->model("tower");
-        auto shader = engine::core::Controller::get<engine::resources::ResourcesController>()->shader("basic");
-        shader->use();
+        void MainController::draw_chessboard() {
+            auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
+            auto chessboard = engine::core::Controller::get<engine::resources::ResourcesController>()->model("chessboard");
+            auto shader = engine::core::Controller::get<engine::resources::ResourcesController>()->shader("chessboard");
 
+
+        shader->use();
         shader->set_mat4("projection", graphics->projection_matrix());
-        shader->set_mat4("view", graphics->camera()
-                                         ->view_matrix());
+        shader->set_mat4("view", graphics->camera()->view_matrix());
+    
+        auto model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));
+        //model = glm::scale(model, glm::vec3(0.01f));
+        shader->set_mat4("model", model);
+
+        chessboard->draw(shader);
+    }
+
+    void MainController::draw_knight() {
+        auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
+        auto knight = engine::core::Controller::get<engine::resources::ResourcesController>()->model("knight");
+
+        auto shader = engine::core::Controller::get<engine::resources::ResourcesController>()->shader("knight");
+        shader->use();
+        shader->set_mat4("projection", graphics->projection_matrix());
+        shader->set_mat4("view", graphics->camera()->view_matrix());
 
         auto model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(0.01f));
+        //model = glm::scale(model, glm::vec3(0.01f));
         shader->set_mat4("model", model);
-        tower->draw(shader);
+
+        knight->draw(shader);
     }
 
     void MainController::draw_skybox() {
