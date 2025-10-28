@@ -56,11 +56,99 @@ void MainController::begin_draw() {
     engine::graphics::OpenGL::clear_buffers();
 }
 
+static glm::vec3 board_to_world(int file, int rank, float board_scale = 0.01f)
+{
+    // The original chessboard model is 100×100 units (before scaling)
+    // After scaling by 0.01 each square is 1.0 world unit.
+    const float square_size = 1.0f;                     // after board_scale
+    const float offset = (7.0f * square_size) * 0.5f;   // centre the board
+
+    float x = (file * square_size) - offset;
+    float z = (rank * square_size) - offset;            // rank = row (0 = back rank)
+    return glm::vec3(x, 0.0f, z);
+}
+static void draw_piece(engine::resources::Model* model,
+                       engine::resources::Shader* shader,
+                       const glm::vec3& pos,
+                       const glm::vec3& colour = glm::vec3(1.0f))
+{
+    if (!model || !shader) return;  // safety
+
+    auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
+
+    shader->use();
+    shader->set_mat4("projection", graphics->projection_matrix());
+    shader->set_mat4("view",      graphics->camera()->view_matrix());
+    shader->set_vec3("pieceColor", colour);
+
+    glm::mat4 model_mat = glm::mat4(1.0f);
+    model_mat = glm::translate(model_mat, pos);
+    model_mat = glm::scale(model_mat, glm::vec3(0.01f));
+    shader->set_mat4("model", model_mat);
+
+    model->draw(shader);
+}
+
+void MainController::draw_all_pieces()
+{
+    auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
+
+    // ---- Load models as raw pointers (matches your current API) ----
+    auto* pawn   = resources->model("pawn");
+    auto* rook   = resources->model("rook");
+    auto* knight = resources->model("knight");
+    auto* bishop = resources->model("bishop");
+    auto* queen  = resources->model("queen");
+    auto* king   = resources->model("king");
+
+    auto* piece_shader = resources->shader("piece");
+    if (!piece_shader) {
+        spdlog::error("Shader 'piece' not found!");
+        return;
+    }
+
+    // ---- Helper lambda using raw pointers ----
+    auto place = [&](int file, int rank,
+                     engine::resources::Model* mdl,
+                     const glm::vec3& colour = glm::vec3(1.0f))
+    {
+        if (mdl) {
+            draw_piece(mdl, piece_shader, board_to_world(file, rank), colour);
+        }
+    };
+
+    // ---- White back rank (rank 0) ----
+    place(0, 0, rook,   glm::vec3(1.0f));
+    place(1, 0, knight, glm::vec3(1.0f));
+    place(2, 0, bishop, glm::vec3(1.0f));
+    place(3, 0, queen,  glm::vec3(1.0f));
+    place(4, 0, king,   glm::vec3(1.0f));
+    place(5, 0, bishop, glm::vec3(1.0f));
+    place(6, 0, knight, glm::vec3(1.0f));
+    place(7, 0, rook,   glm::vec3(1.0f));
+
+    // ---- White pawns (rank 1) ----
+    for (int f = 0; f < 8; ++f)
+        place(f, 1, pawn, glm::vec3(1.0f));
+
+    // ---- Black back rank (rank 7) ----
+    place(0, 7, rook,   glm::vec3(0.2f));
+    place(1, 7, knight, glm::vec3(0.2f));
+    place(2, 7, bishop, glm::vec3(0.2f));
+    place(3, 7, queen,  glm::vec3(0.2f));
+    place(4, 7, king,   glm::vec3(0.2f));
+    place(5, 7, bishop, glm::vec3(0.2f));
+    place(6, 7, knight, glm::vec3(0.2f));
+    place(7, 7, rook,   glm::vec3(0.2f));
+
+    // ---- Black pawns (rank 6) ----
+    for (int f = 0; f < 8; ++f)
+        place(f, 6, pawn, glm::vec3(0.2f));
+}
+
 void MainController::draw() {
     draw_chessboard();
-    draw_knight();
-    draw_king();
-    //draw_planet();
+    draw_all_pieces();
     draw_skybox();
 }
 
