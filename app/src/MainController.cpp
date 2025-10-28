@@ -25,6 +25,19 @@ void MainPlatformEventObserver::on_mouse_move(engine::platform::MousePosition po
         camera->rotate_camera(position.dx, position.dy);
     }
 }
+glm::vec3 MainController::board_to_world(int file, int rank) const
+{
+    const float square_size = m_board_world_size * 2.0f ;
+    const float offset = m_board_world_size * 0.5f;
+
+    float x = (file * square_size) - offset + (square_size * 0.5f);
+    float z = (rank * square_size) - offset + (square_size * 0.5f);
+
+    x = x - 8.0f;
+    z = z - 8.0f;
+
+    return glm::vec3(x, 0.0f, z);
+}
 
 void MainController::initialize() {
     auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
@@ -56,16 +69,34 @@ void MainController::begin_draw() {
     engine::graphics::OpenGL::clear_buffers();
 }
 
-static glm::vec3 board_to_world(int file, int rank, float board_scale = 0.01f)
+void MainController::draw_debug_board_corners()
 {
-    // The original chessboard model is 100×100 units (before scaling)
-    // After scaling by 0.01 each square is 1.0 world unit.
-    const float square_size = 1.0f;                     // after board_scale
-    const float offset = (7.0f * square_size) * 0.5f;   // centre the board
+    auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
+    auto cube = resources->model("pawn"); // or any small model
+    if (!cube) return;
 
-    float x = (file * square_size) - offset;
-    float z = (rank * square_size) - offset;            // rank = row (0 = back rank)
-    return glm::vec3(x, 0.0f, z);
+    auto shader = resources->shader("piece");
+    auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
+
+    shader->use();
+    shader->set_mat4("projection", graphics->projection_matrix());
+    shader->set_mat4("view", graphics->camera()->view_matrix());
+    shader->set_vec3("lightPos", glm::vec3(5,10,5));
+    shader->set_vec3("viewPos", graphics->camera()->Position);
+
+    auto draw_corner = [&](const glm::vec3& pos, const glm::vec3& color) {
+        shader->set_vec3("pieceColor", color);
+        glm::mat4 m = glm::translate(glm::mat4(1.0f), pos);
+        m = glm::scale(m, glm::vec3(0.002f)); // small cube
+        shader->set_mat4("model", m);
+        cube->draw(shader);
+    };
+
+    // These are the **expected world positions** of a1, h1, a8, h8
+    draw_corner(glm::vec3(-0.5f, 0.0f, -0.5f), glm::vec3(1,0,0)); // a1 red
+    draw_corner(glm::vec3(+0.5f, 0.0f, -0.5f), glm::vec3(0,1,0)); // h1 green
+    draw_corner(glm::vec3(-0.5f, 0.0f, +0.5f), glm::vec3(0,0,1)); // a8 blue
+    draw_corner(glm::vec3(+0.5f, 0.0f, +0.5f), glm::vec3(1,1,0)); // h8 yellow
 }
 
 static void draw_piece(engine::resources::Model* model,
@@ -154,6 +185,7 @@ void MainController::draw_all_pieces()
 void MainController::draw() {
     draw_chessboard();
     draw_all_pieces();
+    //draw_debug_board_corners();
     draw_skybox();
 }
 
@@ -180,7 +212,8 @@ void MainController::draw_planet() {
     planet->draw(shader);
 }
 
-void MainController::draw_chessboard() {
+void MainController::draw_chessboard()
+{
     auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
     auto chessboard = engine::core::Controller::get<engine::resources::ResourcesController>()->model("chessboard");
     auto shader = engine::core::Controller::get<engine::resources::ResourcesController>()->shader("chessboard");
@@ -188,14 +221,19 @@ void MainController::draw_chessboard() {
     shader->set_mat4("projection", graphics->projection_matrix());
     shader->set_mat4("view", graphics->camera()->view_matrix());
 
-    auto model = glm::mat4(1.0f);
-    model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));
-    //model = glm::scale(model, glm::vec3(0.01f));
-    shader->set_mat4("model", model);
+    glm::mat4 model = glm::mat4(1.0f);
 
+    // ---- AUTO-SCALE TO 1.0 WORLD UNIT ----
+
+    const float desired_board_world_size = 1.0f;
+    const float model_native_size = 100.0f;  // or 8.0f
+    float scale = desired_board_world_size / model_native_size;
+    model = glm::scale(model, glm::vec3(scale));
+    m_board_world_size = desired_board_world_size;
+
+    shader->set_mat4("model", model);
     chessboard->draw(shader);
 }
-
 
 void MainController::draw_skybox() {
     auto skybox_shader = engine::core::Controller::get<engine::resources::ResourcesController>()->shader("skybox");
@@ -223,40 +261,6 @@ static void draw_piece(const std::shared_ptr<engine::resources::Model>& model,
     model->draw(shader);
 }
 
-void MainController::draw_knight() {
-    auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
-    auto knight = engine::core::Controller::get<engine::resources::ResourcesController>()->model("knight");
-
-    auto shader = engine::core::Controller::get<engine::resources::ResourcesController>()->shader("piece");
-    shader->use();
-    shader->set_mat4("projection", graphics->projection_matrix());
-    shader->set_mat4("view", graphics->camera()->view_matrix());
-
-    auto model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(5.0f, 0.0f, 0.0f));
-    model = glm::scale(model, glm::vec3(0.01f));
-    //model = glm::scale(model, glm::vec3(0.01f));
-    shader->set_mat4("model", model);
-
-    knight->draw(shader);
-}
-
-void MainController::draw_king() {
-    auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
-    auto king = engine::core::Controller::get<engine::resources::ResourcesController>()->model("king");
-
-    auto shader = engine::core::Controller::get<engine::resources::ResourcesController>()->shader("piece");
-    shader->use();
-    shader->set_mat4("projection", graphics->projection_matrix());
-    shader->set_mat4("view", graphics->camera()->view_matrix());
-
-    auto model = glm::mat4(1.0f);
-    model = glm::scale(model, glm::vec3(0.01f));
-    //model = glm::scale(model, glm::vec3(0.01f));
-    shader->set_mat4("model", model);
-
-    king->draw(shader);
-}
 void MainController::update_camera() {
     auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
     auto camera = engine::core::Controller::get<engine::graphics::GraphicsController>()->camera();
