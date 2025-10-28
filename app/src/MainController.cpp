@@ -67,28 +67,33 @@ static glm::vec3 board_to_world(int file, int rank, float board_scale = 0.01f)
     float z = (rank * square_size) - offset;            // rank = row (0 = back rank)
     return glm::vec3(x, 0.0f, z);
 }
+
 static void draw_piece(engine::resources::Model* model,
-                       engine::resources::Shader* shader,
-                       const glm::vec3& pos,
-                       const glm::vec3& colour = glm::vec3(1.0f))
+                                engine::resources::Shader* shader,
+                                const glm::vec3& pos,
+                                const glm::vec3& colour)
 {
-    if (!model || !shader) return;  // safety
+    if (!model || !shader) return;
 
     auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
+    auto camera   = graphics->camera();
 
     shader->use();
-    shader->set_mat4("projection", graphics->projection_matrix());
-    shader->set_mat4("view",      graphics->camera()->view_matrix());
-    shader->set_vec3("pieceColor", colour);
 
-    glm::mat4 model_mat = glm::mat4(1.0f);
-    model_mat = glm::translate(model_mat, pos);
+    shader->set_mat4("projection", graphics->projection_matrix());
+    shader->set_mat4("view",       camera->view_matrix());
+
+    // ---- NEW uniforms required by the shader
+    shader->set_vec3("pieceColor", colour);
+    shader->set_vec3("lightPos",   glm::vec3(5.0f, 10.0f, 5.0f)); // any world position
+    shader->set_vec3("viewPos",    camera->Position);
+
+    glm::mat4 model_mat = glm::translate(glm::mat4(1.0f), pos);
     model_mat = glm::scale(model_mat, glm::vec3(0.01f));
     shader->set_mat4("model", model_mat);
 
     model->draw(shader);
 }
-
 void MainController::draw_all_pieces()
 {
     auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
@@ -101,7 +106,7 @@ void MainController::draw_all_pieces()
     auto* queen  = resources->model("queen");
     auto* king   = resources->model("king");
 
-    auto* piece_shader = resources->shader("piece");
+    auto* piece_shader = resources->shader("new_piece");
     if (!piece_shader) {
         spdlog::error("Shader 'piece' not found!");
         return;
@@ -203,7 +208,7 @@ static void draw_piece(const std::shared_ptr<engine::resources::Model>& model,
                        const glm::vec3& colour = glm::vec3(1.0f))
 {
     auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
-    auto shader = engine::core::Controller::get<engine::resources::ResourcesController>()->shader("piece");
+    auto shader = engine::core::Controller::get<engine::resources::ResourcesController>()->shader("new_piece");
 
     shader->use();
     shader->set_mat4("projection", graphics->projection_matrix());
