@@ -25,6 +25,7 @@ namespace app {
         void draw_planet();
         void draw_chessboard();
         void draw_knight();
+        void draw_king();
         void draw_skybox();
 
         void update_camera();
