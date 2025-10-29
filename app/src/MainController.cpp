@@ -109,7 +109,7 @@ void MainController::draw_all_pieces()
     auto* queen  = resources->model("queen");
     auto* king   = resources->model("king");
 
-    auto* piece_shader = resources->shader("new_piece");
+    auto* piece_shader = resources->shader("piece");
     if (!piece_shader) {
         spdlog::error("Shader 'piece' not found!");
         return;
@@ -215,7 +215,7 @@ static void draw_piece(const std::shared_ptr<engine::resources::Model>& model,
                        const glm::vec3& colour = glm::vec3(1.0f))
 {
     auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
-    auto shader = engine::core::Controller::get<engine::resources::ResourcesController>()->shader("new_piece");
+    auto shader = engine::core::Controller::get<engine::resources::ResourcesController>()->shader("piece");
 
     shader->use();
     shader->set_mat4("projection", graphics->projection_matrix());
