@@ -12,6 +12,8 @@ add_executable(${PROJECT_NAME} ${sources} ${headers}
         src/MainApp.cpp
         include/GUIController.hpp
         src/GuiController.cpp
+        include/LightingSystem.hpp
+        src/LightingSystem.cpp
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE matf-rg-engine)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)

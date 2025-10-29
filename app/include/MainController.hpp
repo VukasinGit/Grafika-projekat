@@ -21,7 +21,6 @@ namespace app {
         void poll_events() override;
         void update() override;
         void begin_draw() override;
-        void draw_debug_board_corners();
         void draw_all_pieces();
         void draw() override;
         void end_draw() override;
@@ -29,8 +28,6 @@ namespace app {
 
         void draw_planet();
         void draw_chessboard();
-        void draw_knight();
-        void draw_king();
         void draw_skybox();
 
         void update_camera();

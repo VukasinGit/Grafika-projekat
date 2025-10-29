@@ -27,7 +27,7 @@ void MainPlatformEventObserver::on_mouse_move(engine::platform::MousePosition po
 }
 glm::vec3 MainController::board_to_world(int file, int rank) const
 {
-    const float square_size = m_board_world_size * 2.0f ;
+    const float square_size = m_board_world_size * 2.2f ;
     const float offset = m_board_world_size * 0.5f;
 
     float x = (file * square_size) - offset + (square_size * 0.5f);
@@ -69,36 +69,6 @@ void MainController::begin_draw() {
     engine::graphics::OpenGL::clear_buffers();
 }
 
-void MainController::draw_debug_board_corners()
-{
-    auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
-    auto cube = resources->model("pawn"); // or any small model
-    if (!cube) return;
-
-    auto shader = resources->shader("piece");
-    auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
-
-    shader->use();
-    shader->set_mat4("projection", graphics->projection_matrix());
-    shader->set_mat4("view", graphics->camera()->view_matrix());
-    shader->set_vec3("lightPos", glm::vec3(5,10,5));
-    shader->set_vec3("viewPos", graphics->camera()->Position);
-
-    auto draw_corner = [&](const glm::vec3& pos, const glm::vec3& color) {
-        shader->set_vec3("pieceColor", color);
-        glm::mat4 m = glm::translate(glm::mat4(1.0f), pos);
-        m = glm::scale(m, glm::vec3(0.002f)); // small cube
-        shader->set_mat4("model", m);
-        cube->draw(shader);
-    };
-
-    // These are the **expected world positions** of a1, h1, a8, h8
-    draw_corner(glm::vec3(-0.5f, 0.0f, -0.5f), glm::vec3(1,0,0)); // a1 red
-    draw_corner(glm::vec3(+0.5f, 0.0f, -0.5f), glm::vec3(0,1,0)); // h1 green
-    draw_corner(glm::vec3(-0.5f, 0.0f, +0.5f), glm::vec3(0,0,1)); // a8 blue
-    draw_corner(glm::vec3(+0.5f, 0.0f, +0.5f), glm::vec3(1,1,0)); // h8 yellow
-}
-
 static void draw_piece(engine::resources::Model* model,
                                 engine::resources::Shader* shader,
                                 const glm::vec3& pos,
@@ -114,10 +84,13 @@ static void draw_piece(engine::resources::Model* model,
     shader->set_mat4("projection", graphics->projection_matrix());
     shader->set_mat4("view",       camera->view_matrix());
 
-    // ---- NEW uniforms required by the shader
     shader->set_vec3("pieceColor", colour);
     shader->set_vec3("lightPos",   glm::vec3(5.0f, 10.0f, 5.0f)); // any world position
     shader->set_vec3("viewPos",    camera->Position);
+
+    // Directional light
+    // shader->set_vec3("dirLight.direction");
+    // shader->set_vec3("dirLight.color");
 
     glm::mat4 model_mat = glm::translate(glm::mat4(1.0f), pos);
     model_mat = glm::scale(model_mat, glm::vec3(0.01f));
@@ -129,7 +102,6 @@ void MainController::draw_all_pieces()
 {
     auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
 
-    // ---- Load models as raw pointers (matches your current API) ----
     auto* pawn   = resources->model("pawn");
     auto* rook   = resources->model("rook");
     auto* knight = resources->model("knight");
@@ -185,7 +157,6 @@ void MainController::draw_all_pieces()
 void MainController::draw() {
     draw_chessboard();
     draw_all_pieces();
-    //draw_debug_board_corners();
     draw_skybox();
 }
 
@@ -223,10 +194,8 @@ void MainController::draw_chessboard()
 
     glm::mat4 model = glm::mat4(1.0f);
 
-    // ---- AUTO-SCALE TO 1.0 WORLD UNIT ----
-
     const float desired_board_world_size = 1.0f;
-    const float model_native_size = 100.0f;  // or 8.0f
+    const float model_native_size = 100.0f;
     float scale = desired_board_world_size / model_native_size;
     model = glm::scale(model, glm::vec3(scale));
     m_board_world_size = desired_board_world_size;
