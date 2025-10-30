@@ -1,6 +1,30 @@
 {
   "resources": {
     "models": {
+      "planet": {
+        "path": "planet/planet.obj"
+      },
+      "chessboard": {
+        "path": "chessboard/Board.obj"
+      },
+      "knight": {
+        "path": "chessboard/pieces/knight/Knight.obj"
+      },
+      "king": {
+        "path": "chessboard/pieces/king/King.obj"
+      },
+      "queen": {
+        "path": "chessboard/pieces/queen/Queen.obj"
+      },
+      "pawn": {
+        "path": "chessboard/pieces/pawn/Pawn.obj"
+      },
+      "rook": {
+        "path": "chessboard/pieces/rook/Rook.obj"
+      },
+      "bishop": {
+        "path": "chessboard/pieces/bishop/Bishop.obj"
+      }
     }
   },
   "window": {
