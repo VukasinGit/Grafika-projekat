@@ -10,6 +10,7 @@ S -> Move backwards
 A -> Move left
 D -> Move right
 
+M -> Move pawn
 P -> Open and close GUI menu
 ESCAPE -> Exit the program
 

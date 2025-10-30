@@ -17,6 +17,10 @@ namespace app {
     private:
         LightingSystem m_lighting_system;
         float m_board_world_size = 1.0f;
+        glm::vec3 m_pawn_position = glm::vec3(0.0f, 0.0f, 0.0f);  // Početni položaj pesaka (a2, rank 1, file 0)
+        glm::vec3 m_pawn_target;
+        bool m_pawn_moving = false;
+        float m_pawn_lerp_t = 0.0f;
         glm::vec3 board_to_world(int file, int rank) const;
         void initialize() override;
         bool loop() override;

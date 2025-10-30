@@ -43,6 +43,8 @@ void MainController::initialize() {
     auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
     platform->register_platform_event_observer(std::make_unique<MainPlatformEventObserver>());
     engine::graphics::OpenGL::enable_depth_testing();
+
+    m_pawn_position = board_to_world(0, 1);  // a2
 }
 
 
@@ -64,6 +66,27 @@ void MainController::poll_events() {
 void MainController::update() {
     update_camera();
     m_lighting_system.update(get<engine::platform::PlatformController>()->dt());
+
+    auto platform = get<engine::platform::PlatformController>();
+    float dt = platform->dt();
+
+    // ACTION: Pritisak KEY_M pokreće pomeranje
+    if (platform->key(engine::platform::KEY_M)
+                .state() == engine::platform::Key::State::Pressed)  {
+        m_pawn_target = board_to_world(0, 3);  // Pomeraj na a4 (rank 3)
+        m_pawn_moving = true;
+        m_pawn_lerp_t = 0.0f;
+    }
+
+    // Animacija pomeranja
+    if (m_pawn_moving) {
+        m_pawn_lerp_t += dt * 1.0f;  // Brzina: 1 sekunda za pomeranje
+        if (m_pawn_lerp_t >= 1.0f) {
+            m_pawn_lerp_t = 1.0f;
+            m_pawn_moving = false;
+        }
+        m_pawn_position = glm::mix(m_pawn_position, m_pawn_target, m_pawn_lerp_t);
+    }
 }
 
 void MainController::begin_draw() {
@@ -88,10 +111,6 @@ static void draw_piece(engine::resources::Model* model,
     shader->set_vec3("pieceColor", colour);
     shader->set_vec3("lightPos",   glm::vec3(5.0f, 10.0f, 5.0f)); // any world position
     shader->set_vec3("viewPos",    camera->Position);
-
-    // Directional light
-    // shader->set_vec3("dirLight.direction");
-    // shader->set_vec3("dirLight.color");
 
     glm::mat4 model_mat = glm::translate(glm::mat4(1.0f), pos);
     model_mat = glm::scale(model_mat, glm::vec3(0.01f));
@@ -138,9 +157,11 @@ void MainController::draw_all_pieces()
     place(7, 0, rook,   glm::vec3(1.0f));
 
     // ---- White pawns (rank 1) ----
-    for (int f = 0; f < 8; ++f)
+    for (int f = 1; f < 8; ++f)
         place(f, 1, pawn, glm::vec3(1.0f));
 
+    glm::vec3 pawn_pos = m_pawn_moving ? m_pawn_position : board_to_world(0, 1);
+    draw_piece(resources->model("pawn"), piece_shader, pawn_pos, glm::vec3(1.0f));
     // ---- Black back rank (rank 7) ----
     place(0, 7, rook,   glm::vec3(0.2f));
     place(1, 7, knight, glm::vec3(0.2f));
