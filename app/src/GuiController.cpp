@@ -3,13 +3,12 @@
 //
 
 #include <GUIController.hpp>
+#include <LightingSystem.hpp>
 #include <engine/graphics/GraphicsController.hpp>
 #include <engine/platform/PlatformController.hpp>
 #include <imgui.h>
 
 namespace app {
-    float g_camera_speed = 5.0f;
-
     void GUIController::initialize() {
         set_enable(false);
     }
@@ -34,9 +33,11 @@ namespace app {
         ImGui::Text("Yaw, Pitch: (%f %f %f)", c.Yaw, c.Pitch);
         ImGui::Text("Camera front: (%f %f %f)", c.Front.x, c.Front.y, c.Front.z);
 
-        ImGui::DragFloat("Camera speed: (%f)", &g_camera_speed, 1.0f, 100.0f, 100.0f);
+        ImGui::End();
 
+        ImGui::Begin("Light settings");
 
+        ImGui::ColorEdit3("Point light color",  &g_point_light_color[0]);
 
         ImGui::End();
 

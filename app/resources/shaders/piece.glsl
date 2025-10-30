@@ -41,20 +41,17 @@ in VS_OUT {
     vec2 TexCoords;
 } fs_in;
 
-// Uniforms
 uniform vec3 pieceColor;
 uniform vec3 viewPos;
 
-// Directional Light (novi)
-uniform vec3 dirLightPos = vec3(0.0f, 5.0f, 0.0f);  // Default position above board
-uniform vec3 dirLightColor = vec3(1.0f, 1.0f, 1.0f);  // White
-uniform float dirLightIntensity = 1.0f;  // Stronger default
+uniform vec3 dirLightPos = vec3(0.0f, 5.0f, 0.0f);
+uniform vec3 dirLightColor = vec3(1.0f, 1.0f, 1.0f);
+uniform float dirLightIntensity = 1.0f;
 
-// Point Light (novi)
-uniform vec3 pointLightPos = vec3(5.0f, 5.0f, 5.0f);  // Default position
-uniform vec3 pointLightColor = vec3(1.0f, 0.9f, 0.8f);  // Warm
-uniform float pointLightIntensity = 2.0f;  // Stronger
-uniform float pointLightRadius = 10.0f;  // Larger radius for attenuation
+uniform vec3 pointLightPos = vec3(5.0f, 5.0f, 5.0f);
+uniform vec3 pointLightColor = vec3(1.0f, 0.9f, 0.8f);
+uniform float pointLightIntensity = 2.0f;
+uniform float pointLightRadius = 10.0f;
 
 const float shininess = 32.0;
 
@@ -91,11 +88,6 @@ void main()
     // Combine
     vec3 lighting = ambient + directional + point;
     vec3 result = lighting * pieceColor;
-
-    // If no light effect (debug), make yellow
-    if (length(directional + point) < 0.01) {
-        result = vec3(1.0, 1.0, 0.0);  // Yellow to spot no light
-    }
 
     result = pow(result, vec3(1.0/2.2));
     FragColor = vec4(result, 1.0);

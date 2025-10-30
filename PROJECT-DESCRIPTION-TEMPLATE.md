@@ -1,21 +1,24 @@
-# {NAME-OF-THE-PROJECT}
+# Chess
 
-{INDEX} - {STUDENT-FULL-NAME}  
-{PROJECT DESCRIPTION}
+{mi22044} - {Vukasin Radivojevic}  
+{3D scena sahovske table}
 
 ## Controls
 
-{BUTTON1} -> {ACTION1}  
-{BUTTON2} -> {ACTION2}  
-...  
-{BUTTONN} -> {ACTIONN}
+W -> Move forward  
+S -> Move backwards  
+A -> Move left
+D -> Move right
+
+P -> Open and close GUI menu
+ESCAPE -> Exit the program
 
 ## Features
 
 ### Fundamental:
 
-[ ] Model with lighting
-[ ] Two types of lighting with customizable colors and movement through GUI or ACTIONS
+[X] Model with lighting
+[] Two types of lighting with customizable colors and movement through GUI or ACTIONS
 [ ] {ACTION_X} --- AFTER_M_SECONDS---Triggers---> {EVENT_A} ---> AFTER_N_SECONDS---Triggers---> {EVENT_B}
 
 ### Group A:
@@ -37,12 +40,12 @@
 
 ## Models:
 
-[link1]   
-[link2]
+https://ejgarner118.itch.io/chess-set
 
 ## Textures
 
 https://www.vecteezy.com/vector-art/4249098-abstract-background-black-and-white-chessboard-pattern-optical-illusion-texture-for-your-design
-[link2]
 
-{OTHER-RESOURCES}
+ ## Other resources
+
+https://convert3d.org/fbx-to-obj

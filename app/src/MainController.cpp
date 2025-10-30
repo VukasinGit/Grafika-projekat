@@ -63,6 +63,7 @@ void MainController::poll_events() {
 
 void MainController::update() {
     update_camera();
+    m_lighting_system.update(get<engine::platform::PlatformController>()->dt());
 }
 
 void MainController::begin_draw() {
@@ -115,6 +116,7 @@ void MainController::draw_all_pieces()
         return;
     }
 
+    m_lighting_system.apply_to_shader(piece_shader);
     // ---- Helper lambda using raw pointers ----
     auto place = [&](int file, int rank,
                      engine::resources::Model* mdl,

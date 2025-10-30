@@ -4,9 +4,10 @@
 
 #ifndef MAINCONTROLLER_HPP
 #define MAINCONTROLLER_HPP
+#include <LightingSystem.hpp>
 #include <engine/core/Controller.hpp>
-#include <glm/vec3.hpp>
 #include <engine/platform/PlatformEventObserver.hpp>
+#include <glm/vec3.hpp>
 
 namespace app {
     class MainController : public engine::core::Controller {
@@ -14,6 +15,7 @@ namespace app {
         std::string_view name() const override;
 
     private:
+        LightingSystem m_lighting_system;
         float m_board_world_size = 1.0f;
         glm::vec3 board_to_world(int file, int rank) const;
         void initialize() override;
