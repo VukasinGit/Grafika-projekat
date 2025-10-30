@@ -25,9 +25,8 @@ void MainPlatformEventObserver::on_mouse_move(engine::platform::MousePosition po
         camera->rotate_camera(position.dx, position.dy);
     }
 }
-glm::vec3 MainController::board_to_world(int file, int rank) const
-{
-    const float square_size = m_board_world_size * 2.2f ;
+glm::vec3 MainController::board_to_world(int file, int rank) const {
+    const float square_size = m_board_world_size * 2.2f;
     const float offset = m_board_world_size * 0.5f;
 
     float x = (file * square_size) - offset + (square_size * 0.5f);
@@ -44,7 +43,9 @@ void MainController::initialize() {
     platform->register_platform_event_observer(std::make_unique<MainPlatformEventObserver>());
     engine::graphics::OpenGL::enable_depth_testing();
 
-    m_pawn_position = board_to_world(0, 1);  // a2
+    auto camera = engine::core::Controller::get<engine::graphics::GraphicsController>()->camera();
+    camera->move_camera(engine::graphics::Camera::Movement::UP, 2.0f);
+    m_pawn_position = board_to_world(0, 1);// a2
 }
 
 
@@ -72,15 +73,15 @@ void MainController::update() {
 
     // ACTION: Pritisak KEY_M pokreće pomeranje
     if (platform->key(engine::platform::KEY_M)
-                .state() == engine::platform::Key::State::Pressed)  {
-        m_pawn_target = board_to_world(0, 3);  // Pomeraj na a4 (rank 3)
+                .state() == engine::platform::Key::State::Pressed) {
+        m_pawn_target = board_to_world(0, 3);// Pomeraj na a4 (rank 3)
         m_pawn_moving = true;
         m_pawn_lerp_t = 0.0f;
     }
 
     // Animacija pomeranja
     if (m_pawn_moving) {
-        m_pawn_lerp_t += dt * 1.0f;  // Brzina: 1 sekunda za pomeranje
+        m_pawn_lerp_t += dt * 1.0f;// Brzina: 1 sekunda za pomeranje
         if (m_pawn_lerp_t >= 1.0f) {
             m_pawn_lerp_t = 1.0f;
             m_pawn_moving = false;
@@ -93,24 +94,23 @@ void MainController::begin_draw() {
     engine::graphics::OpenGL::clear_buffers();
 }
 
-static void draw_piece(engine::resources::Model* model,
-                                engine::resources::Shader* shader,
-                                const glm::vec3& pos,
-                                const glm::vec3& colour)
-{
+static void draw_piece(engine::resources::Model *model,
+                       engine::resources::Shader *shader,
+                       const glm::vec3 &pos,
+                       const glm::vec3 &colour) {
     if (!model || !shader) return;
 
     auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
-    auto camera   = graphics->camera();
+    auto camera = graphics->camera();
 
     shader->use();
 
     shader->set_mat4("projection", graphics->projection_matrix());
-    shader->set_mat4("view",       camera->view_matrix());
+    shader->set_mat4("view", camera->view_matrix());
 
     shader->set_vec3("pieceColor", colour);
-    shader->set_vec3("lightPos",   glm::vec3(5.0f, 10.0f, 5.0f)); // any world position
-    shader->set_vec3("viewPos",    camera->Position);
+    shader->set_vec3("lightPos", glm::vec3(5.0f, 10.0f, 5.0f));// any world position
+    shader->set_vec3("viewPos", camera->Position);
 
     glm::mat4 model_mat = glm::translate(glm::mat4(1.0f), pos);
     model_mat = glm::scale(model_mat, glm::vec3(0.01f));
@@ -118,18 +118,17 @@ static void draw_piece(engine::resources::Model* model,
 
     model->draw(shader);
 }
-void MainController::draw_all_pieces()
-{
+void MainController::draw_all_pieces() {
     auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
 
-    auto* pawn   = resources->model("pawn");
-    auto* rook   = resources->model("rook");
-    auto* knight = resources->model("knight");
-    auto* bishop = resources->model("bishop");
-    auto* queen  = resources->model("queen");
-    auto* king   = resources->model("king");
+    auto *pawn = resources->model("pawn");
+    auto *rook = resources->model("rook");
+    auto *knight = resources->model("knight");
+    auto *bishop = resources->model("bishop");
+    auto *queen = resources->model("queen");
+    auto *king = resources->model("king");
 
-    auto* piece_shader = resources->shader("piece");
+    auto *piece_shader = resources->shader("piece");
     if (!piece_shader) {
         spdlog::error("Shader 'piece' not found!");
         return;
@@ -138,23 +137,22 @@ void MainController::draw_all_pieces()
     m_lighting_system.apply_to_shader(piece_shader);
     // ---- Helper lambda using raw pointers ----
     auto place = [&](int file, int rank,
-                     engine::resources::Model* mdl,
-                     const glm::vec3& colour = glm::vec3(1.0f))
-    {
+                     engine::resources::Model *mdl,
+                     const glm::vec3 &colour = glm::vec3(1.0f)) {
         if (mdl) {
             draw_piece(mdl, piece_shader, board_to_world(file, rank), colour);
         }
     };
 
     // ---- White back rank (rank 0) ----
-    place(0, 0, rook,   glm::vec3(1.0f));
+    place(0, 0, rook, glm::vec3(1.0f));
     place(1, 0, knight, glm::vec3(1.0f));
     place(2, 0, bishop, glm::vec3(1.0f));
-    place(3, 0, queen,  glm::vec3(1.0f));
-    place(4, 0, king,   glm::vec3(1.0f));
+    place(3, 0, queen, glm::vec3(1.0f));
+    place(4, 0, king, glm::vec3(1.0f));
     place(5, 0, bishop, glm::vec3(1.0f));
     place(6, 0, knight, glm::vec3(1.0f));
-    place(7, 0, rook,   glm::vec3(1.0f));
+    place(7, 0, rook, glm::vec3(1.0f));
 
     // ---- White pawns (rank 1) ----
     for (int f = 1; f < 8; ++f)
@@ -163,14 +161,14 @@ void MainController::draw_all_pieces()
     glm::vec3 pawn_pos = m_pawn_moving ? m_pawn_position : board_to_world(0, 1);
     draw_piece(resources->model("pawn"), piece_shader, pawn_pos, glm::vec3(1.0f));
     // ---- Black back rank (rank 7) ----
-    place(0, 7, rook,   glm::vec3(0.2f));
+    place(0, 7, rook, glm::vec3(0.2f));
     place(1, 7, knight, glm::vec3(0.2f));
     place(2, 7, bishop, glm::vec3(0.2f));
-    place(3, 7, queen,  glm::vec3(0.2f));
-    place(4, 7, king,   glm::vec3(0.2f));
+    place(3, 7, queen, glm::vec3(0.2f));
+    place(4, 7, king, glm::vec3(0.2f));
     place(5, 7, bishop, glm::vec3(0.2f));
     place(6, 7, knight, glm::vec3(0.2f));
-    place(7, 7, rook,   glm::vec3(0.2f));
+    place(7, 7, rook, glm::vec3(0.2f));
 
     // ---- Black pawns (rank 6) ----
     for (int f = 0; f < 8; ++f)
@@ -206,8 +204,7 @@ void MainController::draw_planet() {
     planet->draw(shader);
 }
 
-void MainController::draw_chessboard()
-{
+void MainController::draw_chessboard() {
     auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
     auto chessboard = engine::core::Controller::get<engine::resources::ResourcesController>()->model("chessboard");
     auto shader = engine::core::Controller::get<engine::resources::ResourcesController>()->shader("chessboard");
@@ -233,21 +230,20 @@ void MainController::draw_skybox() {
     engine::core::Controller::get<engine::graphics::GraphicsController>()->draw_skybox(skybox_shader, skybox_cube);
 }
 
-static void draw_piece(const std::shared_ptr<engine::resources::Model>& model,
-                       const glm::vec3& pos,
-                       const glm::vec3& colour = glm::vec3(1.0f))
-{
+static void draw_piece(const std::shared_ptr<engine::resources::Model> &model,
+                       const glm::vec3 &pos,
+                       const glm::vec3 &colour = glm::vec3(1.0f)) {
     auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
     auto shader = engine::core::Controller::get<engine::resources::ResourcesController>()->shader("piece");
 
     shader->use();
     shader->set_mat4("projection", graphics->projection_matrix());
-    shader->set_mat4("view",      graphics->camera()->view_matrix());
+    shader->set_mat4("view", graphics->camera()->view_matrix());
     shader->set_vec3("pieceColor", colour);
 
     glm::mat4 model_mat = glm::mat4(1.0f);
     model_mat = glm::translate(model_mat, pos);
-    model_mat = glm::scale(model_mat, glm::vec3(0.01f));   // same scale as the board
+    model_mat = glm::scale(model_mat, glm::vec3(0.01f));// same scale as the board
     shader->set_mat4("model", model_mat);
 
     model->draw(shader);
